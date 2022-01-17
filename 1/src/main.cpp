@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "FrameBuffer.h"
+#include "SphereObject.h"
 
 int main(int argc, char ** argv)
 {
@@ -30,6 +31,10 @@ int main(int argc, char ** argv)
     texture.create(WIDTH, HEIGHT);
     image.create(WIDTH, HEIGHT, sf::Color::Black);
 
+    //Debug Scene, needs a camera and a sphere
+
+
+
     // Init the clock
     sf::Clock clock;
     while (window.isOpen())
@@ -49,26 +54,29 @@ int main(int argc, char ** argv)
         sf::Time elapsed = clock.getElapsedTime();
         int      time    = static_cast<int>(elapsed.asSeconds());
 
-        for (unsigned x = 0; x < WIDTH; x++)
-        {
-            for (unsigned y = 0; y < HEIGHT; y++)
-            {
-                if (time % 2 == 0)
-                {
-                    if (y % 50 < 25 && x % 50 < 25)
-                        FrameBuffer::SetPixel(x, y, 255, 0, 0);
-                    else
-                        FrameBuffer::SetPixel(x, y, 0, 255, 0);
-                }
-                else
-                {
-                    if (y % 50 < 25 && x % 50 < 25)
-                        FrameBuffer::SetPixel(x, y, 0, 255, 0);
-                    else
-                        FrameBuffer::SetPixel(x, y, 255, 0, 0);
-                }
-            }
-        }
+        //for (unsigned x = 0; x < WIDTH; x++)
+        //{
+        //    for (unsigned y = 0; y < HEIGHT; y++)
+        //    {
+        //        if (time % 2 == 0)
+        //        {
+        //            if (y % 50 < 25 && x % 50 < 25)
+        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
+        //            else
+        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
+        //        }
+        //        else
+        //        {
+        //            if (y % 50 < 25 && x % 50 < 25)
+        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
+        //            else
+        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
+        //        }
+        //    }
+        //}
+
+
+
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
