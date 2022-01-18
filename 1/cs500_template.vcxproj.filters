@@ -35,10 +35,10 @@
     <ClInclude Include="SceneParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SphereObject.h">
+    <ClInclude Include="include\SphereObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="include\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
