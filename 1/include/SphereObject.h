@@ -3,13 +3,11 @@
 class SphereObject
 {
 public:
-	SphereObject(glm::vec3 p, glm::vec3 diff, float s) : mPosition{ p }, mScale{ s }, mMaterialDiffuse{diff}
-	{
-		mPosition = p;
-		mScale = s;
-		mMaterialDiffuse = diff;
-	}
+	SphereObject(glm::vec3 p, glm::vec3 diff, float s);
 	~SphereObject();
+	glm::vec3 GetCenter();
+	float GetScale();
+	glm::vec3 GetMaterialDiffuse();
 private:
 	glm::vec3 mPosition;
 	float mScale;
