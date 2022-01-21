@@ -1,16 +1,15 @@
 ﻿  main.cpp
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(96,18): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(148,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(164,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(148,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(164,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(148,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(164,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float

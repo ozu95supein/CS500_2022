@@ -5,28 +5,34 @@
 #include "Camera.h"
 #include "glm/glm.hpp"
 #include <vector>
-
-glm::vec3 CastRayToScene(Camera camera, glm::vec3 PW, std::vector<SphereObject> scene)
+struct Ray 
 {
-    //select a sphere object
-    //using eq of a ray we need to find t, 
-    // find the discriminant, check the 3 possibilities
-    //check the t values and keep the smaller one
-    //go to next sphere object and see if the resulting new t is smaller than previous
+    Ray(glm::vec3 p, glm::vec3 v)
+    {
+        RayOrigin_p = p;
+        direction_v = v;
+    }
+    glm::vec3 RayOrigin_p;
+    glm::vec3 direction_v;
+};
+//returns a color in vec3 form with ranges from 0.0 to 1.0
+glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene)
+{
+    //t values to compare which one is the closest
     float current_t = INFINITY;
     float smallest_t = INFINITY;
     //return black by default
     glm::vec3 nearest_sphere_color = glm::vec3(0.0f, 0.0f, 0.0f);
-    //center of camera to PW is the direction vector V of the RAY
-    glm::vec3 V = PW - camera.GetCPosition();
-    float m4DotVV = 4 * (glm::dot(V, V));
-    
+    //iterate through the objects and find the smallest t all the while keeping track of the color
     for (auto it = scene.begin(); it != scene.end(); ++it)
     {
-        glm::vec3 CP = (it->GetCenter() - camera.GetCPosition());
-        float sphere_radius = it->GetScale();
+        glm::vec3 CP = (r.RayOrigin_p - it->GetCenter()); //Sphere to Cam vector
+        float sphere_radius = it->GetScale();                     //radius of sphere
         //gain discriminant
-        float discriminant = ((2 * (glm::dot(V, CP))) * (2 * (glm::dot(V, CP)))) - m4DotVV * (glm::dot(CP, CP)) - (sphere_radius * sphere_radius);
+        auto a = glm::dot(r.direction_v, r.direction_v);
+        auto b = 2.0f * (glm::dot(r.direction_v, CP));
+        auto c = glm::dot(CP, CP) - (sphere_radius * sphere_radius);
+        float discriminant = b * b - (4.0f * a * c);
         if (discriminant < 0)
         {
             //No intersection, onto the next object
@@ -35,12 +41,12 @@ glm::vec3 CastRayToScene(Camera camera, glm::vec3 PW, std::vector<SphereObject> 
         else if (discriminant > 0)
         {
             //2 intercetions, take the smaller one (the one witht he subtraction)
-            current_t = ((-2.0f * (glm::dot(V, CP))) - glm::sqrt(discriminant)) / (2 * (glm::dot(V, V)));
+            current_t = ((-2.0f * (glm::dot(r.direction_v, CP))) - glm::sqrt(discriminant)) / (2 * (glm::dot(r.direction_v, r.direction_v)));
              
         }
         else if (discriminant == 0)
         {
-            current_t = -(glm::dot(V, CP)) / (glm::dot(V, V));
+            current_t = -(glm::dot(r.direction_v, CP)) / (glm::dot(r.direction_v, r.direction_v));
         }
         //check if t is smaller
         if (current_t < smallest_t)
@@ -85,20 +91,22 @@ int main(int argc, char ** argv)
     glm::vec3 c = glm::vec3(0.0, 1.5, 3.5);
     glm::vec3 T = glm::vec3(0, 0, 0);
     glm::vec3 U = glm::vec3(0, 1, 0);
-    float aspect = WIDTH / HEIGHT;
+    float aspect = (float)WIDTH / (float)HEIGHT;
     float f = 1;
     Camera camera(c, T, U, f);
     
     /*************************************************************************/
     //SCENE and the vector of objects
-    glm::vec3 p = glm::vec3(-0.5, 0.3, 0.8);
+    glm::vec3 p = glm::vec3(0.0, 0.5, 0.0);
     glm::vec3 diff = glm::vec3(0.4, 0.7, 0.32);
-    float s = 0.3;
+    float s = 0.5;
     SphereObject sphere1(p, diff, s);
     std::vector<SphereObject> mSceneSpheres;
     mSceneSpheres.push_back(sphere1);
     /*************************************************************************/
     //get Cam view vec
+    auto cTgt = camera.GetTPosition();
+    auto cPos = camera.GetCPosition();
     glm::vec3 View = camera.GetTPosition() - camera.GetCPosition();
     View = glm::normalize(View);
     glm::vec3 R = glm::cross(View, camera.GetUpVector());
@@ -106,7 +114,7 @@ int main(int argc, char ** argv)
     //Recompute Up
     U = glm::cross(R, View);
     U = glm::normalize(U);
-
+    
     // Init the clock
     sf::Clock clock;
     while (window.isOpen())
@@ -127,14 +135,18 @@ int main(int argc, char ** argv)
         int      time    = static_cast<int>(elapsed.asSeconds());
 
         //get NDC coords
-        float w_o_2 = WIDTH / 2.0f;
-        float h_o_2 = HEIGHT / 2.0f;
-        glm::vec3 r_o_2 = R / 2.0f;
+        float w_o_2 = WIDTH * 0.5f;
+        float h_o_2 = HEIGHT * 0.5f;
+        glm::vec3 r_o_2 = R * 0.5f;
         glm::vec3 u_o_2a = U / (2 * aspect);
         float NDC_x;
         float NDC_y;
         
         glm::vec3 PixelWorld;
+        Ray ray(camera.GetCPosition(), glm::vec3(0.0f, 0.0f, 0.0f));
+        //glm::vec3 result_color = CastRayToScene(DebugCamera, r, mSceneSpheres);
+        glm::vec3 result_color;
+        
         for (unsigned x = 0; x < WIDTH; x++)
         {
             NDC_x = ((x + 0.5f) - w_o_2) / w_o_2;
@@ -143,35 +155,15 @@ int main(int argc, char ** argv)
                 NDC_y = (-((y + 0.5f) - h_o_2)) / h_o_2;
                 //using NDC coord to create pixelWord coords
                 PixelWorld = camera.GetCPosition() + (camera.GetFocalLength() * View) + (NDC_x * r_o_2) + (NDC_y * u_o_2a);
-                glm::vec3 result_color = CastRayToScene(camera, PixelWorld, mSceneSpheres);
-                glm::vec3 result_color_255(result_color.x / 255.0f, result_color.y / 255.0f, result_color.z / 255.0f);
-                FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
+                glm::vec3 RayDir = PixelWorld - ray.RayOrigin_p;  //get ray direction from origin and Pixelworld
+                RayDir = glm::normalize(RayDir);
+                ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
+                result_color = CastRayToScene(camera, ray, mSceneSpheres);  //cast the ray using camera, the ray, and the vector of sphere objects
 
+                glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
+                FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
             }
         }
-        //for (unsigned x = 0; x < WIDTH; x++)
-        //{
-        //    for (unsigned y = 0; y < HEIGHT; y++)
-        //    {
-        //        if (time % 2 == 0)
-        //        {
-        //            if (y % 50 < 25 && x % 50 < 25)
-        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
-        //            else
-        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
-        //        }
-        //        else
-        //        {
-        //            if (y % 50 < 25 && x % 50 < 25)
-        //                FrameBuffer::SetPixel(x, y, 0, 255, 0);
-        //            else
-        //                FrameBuffer::SetPixel(x, y, 255, 0, 0);
-        //        }
-        //    }
-        //}
-
-
-
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
             takeScreenshot = true;
