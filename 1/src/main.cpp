@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "glm/glm.hpp"
 #include <vector>
+#include "SceneParser.h"
+
 struct Ray 
 {
     Ray(glm::vec3 p, glm::vec3 v)
@@ -68,6 +70,10 @@ int main(int argc, char ** argv)
     FrameBuffer::Init(WIDTH, HEIGHT);
 
     std::string inputFile = "input.txt";
+    std::string inputFile1 = "/scene/A1.txt";
+
+    ParseSceneFromFile("A1.txt");
+
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
     
@@ -97,12 +103,27 @@ int main(int argc, char ** argv)
     
     /*************************************************************************/
     //SCENE and the vector of objects
+    std::vector<SphereObject> mSceneSpheres;
+    //sphere1
     glm::vec3 p = glm::vec3(0.0, 0.5, 0.0);
-    glm::vec3 diff = glm::vec3(0.4, 0.7, 0.32);
+    glm::vec3 diff = glm::vec3(0.45, 0.78, 0.66);
     float s = 0.5;
     SphereObject sphere1(p, diff, s);
-    std::vector<SphereObject> mSceneSpheres;
+    //sphere2
+    p = glm::vec3(0.6, 0.5, 0.8);
+    diff = glm::vec3(0.87, 0.88, 0.71);
+    s = 0.5;
+    SphereObject sphere2(p, diff, s);
+    //sphere3
+    p = glm::vec3(-0.6, 0.5, -0.8);
+    diff = glm::vec3(0.88, 0.72, 0.4);
+    s = 0.5;
+    SphereObject sphere3(p, diff, s);
+
     mSceneSpheres.push_back(sphere1);
+    mSceneSpheres.push_back(sphere2);
+    mSceneSpheres.push_back(sphere3);
+
     /*************************************************************************/
     //get Cam view vec
     auto cTgt = camera.GetTPosition();

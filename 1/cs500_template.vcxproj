@@ -89,15 +89,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="SceneParser.cpp" />
     <ClCompile Include="SphereObject.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
-    <ClInclude Include="Scene.h" />
-    <ClInclude Include="SceneParser.h" />
+    <ClInclude Include="include\Scene.h" />
+    <ClInclude Include="include\SceneParser.h" />
     <ClInclude Include="include\SphereObject.h" />
     <ClInclude Include="src\FrameBuffer.h" />
   </ItemGroup>
