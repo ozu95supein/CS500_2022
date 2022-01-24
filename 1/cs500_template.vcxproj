@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\RayCasting.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\SceneParser.h" />
     <ClInclude Include="include\SphereObject.h" />

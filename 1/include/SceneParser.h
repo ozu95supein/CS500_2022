@@ -10,7 +10,7 @@
 #include <vector>
 using namespace std;
 
-
+//these codes are dependant on how the input is formated
 string PARSECODE_SPHERE = "SPHERE";
 string PARSECODE_DIFFUSE = "DIFFUSE";
 string PARSECODE_BOX = "BOX";

@@ -1,96 +1,21 @@
 #include <SFML/Graphics.hpp>
-
 #include "FrameBuffer.h"
 #include "SphereObject.h"
 #include "Camera.h"
 #include "glm/glm.hpp"
 #include <vector>
 #include "SceneParser.h"
-
-struct Ray 
-{
-    Ray(glm::vec3 p, glm::vec3 v)
-    {
-        RayOrigin_p = p;
-        direction_v = v;
-    }
-    glm::vec3 RayOrigin_p;
-    glm::vec3 direction_v;
-};
-//returns a color in vec3 form with ranges from 0.0 to 1.0
-glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, glm::vec3 sceneAmbient)
-{
-    //t values to compare which one is the closest
-    float current_t = INFINITY;
-    float smallest_t = INFINITY;
-    //return black by default
-    glm::vec3 nearest_sphere_color = glm::vec3(0.0f, 0.0f, 0.0f);
-    //iterate through the objects and find the smallest t all the while keeping track of the color
-    for (auto it = scene.begin(); it != scene.end(); ++it)
-    {
-        glm::vec3 CP = (r.RayOrigin_p - it->GetCenter()); //Sphere to Cam vector
-        float sphere_radius = it->GetScale();                     //radius of sphere
-        //gain discriminant
-        auto a = glm::dot(r.direction_v, r.direction_v);
-        auto b = 2.0f * (glm::dot(r.direction_v, CP));
-        auto c = glm::dot(CP, CP) - (sphere_radius * sphere_radius);
-        float discriminant = b * b - (4.0f * a * c);
-        if (discriminant < 0)
-        {
-            //No intersection, onto the next object
-            continue;
-        }
-        else if (discriminant > 0)
-        {
-            //2 intercetions, take the smaller one (the one witht he subtraction)
-            current_t = ((-2.0f * (glm::dot(r.direction_v, CP))) - glm::sqrt(discriminant)) / (2 * (glm::dot(r.direction_v, r.direction_v)));
-            //sanity check to ignore negatives
-            if (current_t < 0)
-            {
-                continue;
-            }
-            //check if t is smaller
-            if (current_t < smallest_t)
-            {
-                smallest_t = current_t;
-                nearest_sphere_color = it->GetMaterialDiffuse();
-            }
-        }
-        else if (discriminant == 0)
-        {
-            current_t = -(glm::dot(r.direction_v, CP)) / (glm::dot(r.direction_v, r.direction_v));
-            //sanity check to ignore negatives
-            if (current_t < 0)
-            {
-                continue;
-            }
-            //check if t is smaller
-            if (current_t < smallest_t)
-            {
-                smallest_t = current_t;
-                nearest_sphere_color = it->GetMaterialDiffuse();
-            }
-        }
-        
-    }
-    //component multiplication with ambient lightsource
-    nearest_sphere_color = nearest_sphere_color * sceneAmbient;
-    return nearest_sphere_color;
-}
+#include "RayCasting.h"
 
 int main(int argc, char ** argv)
 {
-    const int WIDTH  = 1280;
-    const int HEIGHT = 720;
-
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "SFML works!");
-
-    FrameBuffer::Init(WIDTH, HEIGHT);
-
+    //default values for commandline argument data
+    int WIDTH = 500;
+    int HEIGHT = 500;
     std::string inputFile = "A1.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
-    
+    //receive commandline arguments 
     if (argc > 1)
         inputFile = argv[1];
     if (argc > 2)
@@ -98,6 +23,18 @@ int main(int argc, char ** argv)
         screenshotName = argv[2];
         takeScreenshot = true;
     }
+    if (argc > 3)
+    {
+        WIDTH = atoi(argv[3]);
+    }
+    if (argc > 4)
+    {
+        HEIGHT = atoi(argv[4]);
+    }
+    //inti window and frame buffer with correct data
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "cs500_oscar.s_1");
+    FrameBuffer::Init(WIDTH, HEIGHT);
+
     //create a scene struct to store all the scene info from the txt
     SceneStruct mCurrentScene;
     ParseSceneFromFile(inputFile, mCurrentScene);
@@ -110,37 +47,9 @@ int main(int argc, char ** argv)
 
     //Debug Scene, needs a camera and a sphere
     //Camera(glm::vec3 c, glm::vec3 T, glm::vec3 U, float f) : mCPosition{ c }, mTPosition{ T }, mUpVector{ U }, mFocalLength{ f }
-    glm::vec3 c = glm::vec3(0.0, 1.5, 3.5);
-    glm::vec3 T = glm::vec3(0, 0, 0);
     glm::vec3 U = glm::vec3(0, 1, 0);
     float aspect = (float)WIDTH / (float)HEIGHT;
-    float f = 1;
-    Camera camera(c, T, U, f);
-    
-    /*************************************************************************/
-    //SCENE and the vector of objects
-    std::vector<SphereObject> mSceneSpheres;
-    //sphere1
-    glm::vec3 p = glm::vec3(0.0, 0.5, 0.0);
-    glm::vec3 diff = glm::vec3(0.45, 0.78, 0.66);
-    float s = 0.5;
-    SphereObject sphere1(p, diff, s);
-    //sphere2
-    p = glm::vec3(0.6, 0.5, 0.8);
-    diff = glm::vec3(0.87, 0.88, 0.71);
-    s = 0.5;
-    SphereObject sphere2(p, diff, s);
-    //sphere3
-    p = glm::vec3(-0.6, 0.5, -0.8);
-    diff = glm::vec3(0.88, 0.72, 0.4);
-    s = 0.5;
-    SphereObject sphere3(p, diff, s);
-
-    mSceneSpheres.push_back(sphere1);
-    mSceneSpheres.push_back(sphere2);
-    mSceneSpheres.push_back(sphere3);
-
-    /*************************************************************************/
+ 
     //get Cam view vec
     glm::vec3 View = mCurrentScene.mSceneCamera.GetTPosition() - mCurrentScene.mSceneCamera.GetCPosition();
     View = glm::normalize(View);
@@ -194,18 +103,15 @@ int main(int argc, char ** argv)
                 RayDir = glm::normalize(RayDir);
                 ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
                 result_color = CastRayToScene(mCurrentScene.mSceneCamera, ray, mCurrentScene.mSceneSpheres, mCurrentScene.mSceneAmbient);  //cast the ray using camera, the ray, and the vector of sphere objects
-                
+                //convert to 255 format and set the pixel in the frame buffer
                 glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
                 FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
             }
         }
-
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
         {
             takeScreenshot = true;
-
         }
-		
         // Show image on screen
         FrameBuffer::ConvertFrameBufferToSFMLImage(image);
 
@@ -214,13 +120,11 @@ int main(int argc, char ** argv)
         window.draw(sprite);
         window.display();
 		
-		
         if (takeScreenshot)
         {
             image.saveToFile(screenshotName);
             takeScreenshot = false;
         }
     }
-
     return 0;
 }
