@@ -69,11 +69,7 @@ int main(int argc, char ** argv)
 
     FrameBuffer::Init(WIDTH, HEIGHT);
 
-    std::string inputFile = "input.txt";
-    std::string inputFile1 = "/scene/A1.txt";
-
-    ParseSceneFromFile("A1.txt");
-
+    std::string inputFile = "A1.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
     
@@ -84,7 +80,9 @@ int main(int argc, char ** argv)
         screenshotName = argv[2];
         takeScreenshot = true;
     }
-	
+    //create a scene struct to store all the scene info from the txt
+    SceneStruct mCurrentScene;
+    ParseSceneFromFile(inputFile, mCurrentScene);
     // Generate image and texture to display
     sf::Image   image;
     sf::Texture texture;

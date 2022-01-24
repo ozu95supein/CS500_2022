@@ -11,6 +11,11 @@ public:
 	glm::vec3 GetTPosition();
 	glm::vec3 GetUpVector();
 	float GetFocalLength();
+
+	void SetCPosition(glm::vec3 c);
+	void SetTPosition(glm::vec3 t);
+	void SetUpVector(glm::vec3 u);
+	void SetFocalLength(float f);
 private:
 	glm::vec3 mCPosition;
 	glm::vec3 mTPosition;

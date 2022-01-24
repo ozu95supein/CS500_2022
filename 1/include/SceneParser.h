@@ -23,9 +23,22 @@ glm::vec3 ExtractVector(string input)
 	//iterate through the input to get the indices of the dividing chars
 	//dividing chars: "(", ",", ")"
 
+	//Make a substring from input removing the ( and ) characters
+	int inputsize = input.size();
+	string sub_input = input.substr(1, (inputsize-2));
+
+	istringstream mstream(sub_input);
+	string currentNum;
+	int i = 0;
+	while (std::getline(mstream, currentNum, ','))
+	{
+		result[i] = stof(currentNum);
+		i++;
+	}
+
 	return result;
 }
-void ParseSceneFromFile(string filepath) 
+void ParseSceneFromFile(string filepath, SceneStruct & scene) 
 {
 	std::ifstream infile;
 	std::string inputLine;
@@ -86,12 +99,26 @@ void ParseSceneFromFile(string filepath)
 		else if (firstword == PARSECODE_AMBIENT)
 		{
 			getline(sstream, vec3_word, ' ');
-
+			inputAmbient = ExtractVector(vec3_word);
 		}
 		else if (firstword == PARSECODE_CAMERA)
 		{
+			//pos
 			getline(sstream, vec3_word, ' ');
-
+			glm::vec3 v = ExtractVector(vec3_word);
+			inputCamera.SetCPosition(v);
+			//target
+			getline(sstream, vec3_word, ' ');
+			v = ExtractVector(vec3_word);
+			inputCamera.SetTPosition(v);
+			//up
+			getline(sstream, vec3_word, ' ');
+			v = ExtractVector(vec3_word);
+			inputCamera.SetUpVector(v);
+			//focal length
+			getline(sstream, vec3_word, ' ');
+			float f = stof(vec3_word);
+			inputCamera.SetFocalLength(f);
 		}
 		else if (firstword == PARSECODE_DIFFUSE)
 		{
@@ -118,5 +145,11 @@ void ParseSceneFromFile(string filepath)
 			continue;
 		}
 	}
+	//return all of the elements of the scene in the parameter struct
+	SceneStruct inputScene;
+	inputScene.mSceneAmbient = inputAmbient;
+	inputScene.mSceneCamera = inputCamera;
+	inputScene.mSceneSpheres = inputSpheres;
+	scene = inputScene;
 	return;
 }

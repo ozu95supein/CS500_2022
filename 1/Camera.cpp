@@ -33,3 +33,19 @@ float Camera::GetFocalLength()
 {
 	return mFocalLength;
 }
+void Camera::SetCPosition(glm::vec3 c) 
+{
+	mCPosition = c;
+}
+void Camera::SetTPosition(glm::vec3 t)
+{
+	mTPosition = t;
+}
+void Camera::SetUpVector(glm::vec3 u)
+{
+	mUpVector = u;
+}
+void Camera::SetFocalLength(float f)
+{
+	mFocalLength = f;
+}

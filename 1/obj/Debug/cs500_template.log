@@ -1,15 +1,16 @@
 ﻿  main.cpp
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(185,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(27,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(183,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(185,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(183,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(185,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(183,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
