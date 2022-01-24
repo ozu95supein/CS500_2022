@@ -124,11 +124,9 @@ int main(int argc, char ** argv)
 
     /*************************************************************************/
     //get Cam view vec
-    auto cTgt = camera.GetTPosition();
-    auto cPos = camera.GetCPosition();
-    glm::vec3 View = camera.GetTPosition() - camera.GetCPosition();
+    glm::vec3 View = mCurrentScene.mSceneCamera.GetTPosition() - mCurrentScene.mSceneCamera.GetCPosition();
     View = glm::normalize(View);
-    glm::vec3 R = glm::cross(View, camera.GetUpVector());
+    glm::vec3 R = glm::cross(View, mCurrentScene.mSceneCamera.GetUpVector());
     R = glm::normalize(R);
     //Recompute Up
     U = glm::cross(R, View);
@@ -162,22 +160,22 @@ int main(int argc, char ** argv)
         float NDC_y;
         
         glm::vec3 PixelWorld;
-        Ray ray(camera.GetCPosition(), glm::vec3(0.0f, 0.0f, 0.0f));
+        Ray ray(mCurrentScene.mSceneCamera.GetCPosition(), glm::vec3(0.0f, 0.0f, 0.0f));
         //glm::vec3 result_color = CastRayToScene(DebugCamera, r, mSceneSpheres);
         glm::vec3 result_color;
         
-        for (unsigned x = 0; x < WIDTH; x++)
+        for (unsigned x = 0; x < WIDTH; x++) 
         {
             NDC_x = ((x + 0.5f) - w_o_2) / w_o_2;
             for (unsigned y = 0; y < HEIGHT; y++)
             {
                 NDC_y = (-((y + 0.5f) - h_o_2)) / h_o_2;
                 //using NDC coord to create pixelWord coords
-                PixelWorld = camera.GetCPosition() + (camera.GetFocalLength() * View) + (NDC_x * r_o_2) + (NDC_y * u_o_2a);
+                PixelWorld = mCurrentScene.mSceneCamera.GetCPosition() + (mCurrentScene.mSceneCamera.GetFocalLength() * View) + (NDC_x * r_o_2) + (NDC_y * u_o_2a);
                 glm::vec3 RayDir = PixelWorld - ray.RayOrigin_p;  //get ray direction from origin and Pixelworld
                 RayDir = glm::normalize(RayDir);
                 ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
-                result_color = CastRayToScene(camera, ray, mSceneSpheres);  //cast the ray using camera, the ray, and the vector of sphere objects
+                result_color = CastRayToScene(mCurrentScene.mSceneCamera, ray, mSceneSpheres);  //cast the ray using camera, the ray, and the vector of sphere objects
 
                 glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
                 FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
