@@ -18,7 +18,7 @@ struct Ray
     glm::vec3 direction_v;
 };
 //returns a color in vec3 form with ranges from 0.0 to 1.0
-glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene)
+glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, glm::vec3 sceneAmbient)
 {
     //t values to compare which one is the closest
     float current_t = INFINITY;
@@ -44,19 +44,37 @@ glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene)
         {
             //2 intercetions, take the smaller one (the one witht he subtraction)
             current_t = ((-2.0f * (glm::dot(r.direction_v, CP))) - glm::sqrt(discriminant)) / (2 * (glm::dot(r.direction_v, r.direction_v)));
-             
+            //sanity check to ignore negatives
+            if (current_t < 0)
+            {
+                continue;
+            }
+            //check if t is smaller
+            if (current_t < smallest_t)
+            {
+                smallest_t = current_t;
+                nearest_sphere_color = it->GetMaterialDiffuse();
+            }
         }
         else if (discriminant == 0)
         {
             current_t = -(glm::dot(r.direction_v, CP)) / (glm::dot(r.direction_v, r.direction_v));
+            //sanity check to ignore negatives
+            if (current_t < 0)
+            {
+                continue;
+            }
+            //check if t is smaller
+            if (current_t < smallest_t)
+            {
+                smallest_t = current_t;
+                nearest_sphere_color = it->GetMaterialDiffuse();
+            }
         }
-        //check if t is smaller
-        if (current_t < smallest_t)
-        {
-            smallest_t = current_t;
-            nearest_sphere_color = it->GetMaterialDiffuse();
-        }
+        
     }
+    //component multiplication with ambient lightsource
+    nearest_sphere_color = nearest_sphere_color * sceneAmbient;
     return nearest_sphere_color;
 }
 
@@ -175,15 +193,18 @@ int main(int argc, char ** argv)
                 glm::vec3 RayDir = PixelWorld - ray.RayOrigin_p;  //get ray direction from origin and Pixelworld
                 RayDir = glm::normalize(RayDir);
                 ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
-                result_color = CastRayToScene(mCurrentScene.mSceneCamera, ray, mSceneSpheres);  //cast the ray using camera, the ray, and the vector of sphere objects
-
+                result_color = CastRayToScene(mCurrentScene.mSceneCamera, ray, mCurrentScene.mSceneSpheres, mCurrentScene.mSceneAmbient);  //cast the ray using camera, the ray, and the vector of sphere objects
+                
                 glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
                 FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
             }
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
+        {
             takeScreenshot = true;
+
+        }
 		
         // Show image on screen
         FrameBuffer::ConvertFrameBufferToSFMLImage(image);

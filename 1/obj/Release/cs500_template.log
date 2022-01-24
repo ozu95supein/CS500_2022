@@ -1,0 +1,25 @@
+﻿  Camera.cpp
+  SphereObject.cpp
+  FrameBuffer.cpp
+  main.cpp
+C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(27,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(181,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(181,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(181,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+          with
+          [
+              T=float
+          ]
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 429 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  cs500_template.vcxproj -> C:\Users\oscar\Desktop\CS500_2022\1\bin\Release\cs500_template.exe
