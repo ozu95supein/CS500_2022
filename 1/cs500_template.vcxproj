@@ -91,6 +91,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="include\BoxObject.cpp" />
     <ClCompile Include="include\LightObject.cpp" />
+    <ClCompile Include="RayCasting.cpp" />
     <ClCompile Include="SphereObject.cpp" />
     <ClCompile Include="src\FrameBuffer.cpp" />
     <ClCompile Include="src\main.cpp" />

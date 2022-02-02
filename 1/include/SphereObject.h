@@ -8,6 +8,7 @@ public:
 	glm::vec3 GetCenter();
 	float GetScale();
 	glm::vec3 GetMaterialDiffuse();
+	float IntersectWithRay();
 private:
 	glm::vec3 mPosition;
 	float mScale;
