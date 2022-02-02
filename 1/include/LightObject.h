@@ -1,5 +1,6 @@
 #pragma once
 #include<glm/vec3.hpp>
+class Ray;
 class LightObject
 {
 public:
@@ -8,6 +9,8 @@ public:
 	glm::vec3 GetCenter();
 	float GetScale();
 	glm::vec3 GetMaterialDiffuse();
+	float IntersectWithRay(Ray r);
+
 private:
 	glm::vec3 mPosition;
 	float mScale;

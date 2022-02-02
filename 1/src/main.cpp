@@ -32,7 +32,7 @@ int main(int argc, char ** argv)
         HEIGHT = atoi(argv[4]);
     }
     //inti window and frame buffer with correct data
-    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "cs500_oscar.s_1");
+    sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "cs500_oscar.s_2");
     FrameBuffer::Init(WIDTH, HEIGHT);
 
     //create a scene struct to store all the scene info from the txt

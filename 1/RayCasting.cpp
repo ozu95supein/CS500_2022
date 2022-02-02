@@ -1,5 +1,7 @@
 #include "RayCasting.h"
-
+#include "SphereObject.h"
+#include "BoxObject.h"
+#include "LightObject.h"
 //returns a color in vec3 form with ranges from 0.0 to 1.0
 glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, glm::vec3 sceneAmbient)
 {
@@ -58,4 +60,34 @@ glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, 
     //component multiplication with ambient lightsource
     nearest_sphere_color = nearest_sphere_color * sceneAmbient;
     return nearest_sphere_color;
+}
+glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces)
+{
+    //make floats for t values for current t, the value we calculate, and values for smallest 
+    //  t sofar, which are the smallest, non-negative, t values we keep track of
+    float current_sphere_t, current_box_t, current_light_t, smallest_sphere_t_sofar, smallest_box_t_sofar, smallest_light_t_sofar = INFINITY;
+    SphereObject* nearest_sphere_obj = NULL;
+    BoxObject* nearest_box_obj = NULL;
+    LightObject* nearest_light_obj = NULL;
+
+    //iterate of the spheres in the scene, get current t, compare with smallest t, keep trak of nearest object and there t
+    
+    //iterate of the box in the scene, get current t, compare with smallest t, keep trak of nearest object and there t
+    //iterate of the light in the scene, get current t, compare with smallest t, keep trak of nearest object and there t
+
+    //out of the 3 objects and t values, pick the nearest, that is our intersecting object
+    //once we have the nearest object check the remaining bounces
+    //if remaining bounces are == 0
+    //  if intersecting object is a light
+    //      return lightcolor matdiffuse
+    //  else if intersecting object is not a light
+    //      return ambient light
+    //  else
+    //      return ambient light
+    //else if we still have bounces
+    //  if closest object is a light
+    //    return light color matdiffuse
+    //  else 
+    //      generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
+    //      return object_color * CastRayRecursiveBounce();
 }

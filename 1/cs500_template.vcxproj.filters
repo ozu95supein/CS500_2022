@@ -62,5 +62,8 @@
     <ClInclude Include="include\LightObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\ObjectCommonHeader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
