@@ -1,20 +1,36 @@
-﻿  main.cpp
+﻿  BoxObject.cpp
+  LightObject.cpp
+  main.cpp
+C:\Users\oscar\Desktop\CS500_2022\1\include\Scene.h(12,25): error C2371: 'SceneStruct::mSceneSpheres': redefinition; different basic types
+C:\Users\oscar\Desktop\CS500_2022\1\include\Scene.h(11): message : see declaration of 'SceneStruct::mSceneSpheres'
+C:\Users\oscar\Desktop\CS500_2022\1\include\Scene.h(13,27): error C2371: 'SceneStruct::mSceneSpheres': redefinition; different basic types
+C:\Users\oscar\Desktop\CS500_2022\1\include\Scene.h(11): message : see declaration of 'SceneStruct::mSceneSpheres'
 C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(27,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(94,32): warning C4018: '<': signed/unsigned mismatch
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(97,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(108,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\include\RayCasting.h(17,57): error C2059: syntax error: ')'
+C:\Users\oscar\Desktop\CS500_2022\1\include\RayCasting.h(18,1): error C2143: syntax error: missing ')' before '{'
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(97,32): warning C4018: '<': signed/unsigned mismatch
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(100,36): warning C4018: '<': signed/unsigned mismatch
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(108,136): error C2660: 'CastRayToScene': function does not take 3 arguments
+C:\Users\oscar\Desktop\CS500_2022\1\include\RayCasting.h(22,11): message : see declaration of 'CastRayToScene'
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(111,101): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(108,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(111,81): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(108,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(111,61): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-  cs500_template.vcxproj -> C:\Users\oscar\Desktop\CS500_2022\1\bin\Debug\cs500_template.exe
+  Generating Code...
+C:\Users\oscar\Desktop\CS500_2022\1\include\LightObject.cpp(14): error C4716: 'LightObject::GetCenter': must return a value
+C:\Users\oscar\Desktop\CS500_2022\1\include\LightObject.cpp(18): error C4716: 'LightObject::GetScale': must return a value
+C:\Users\oscar\Desktop\CS500_2022\1\include\LightObject.cpp(22): error C4716: 'LightObject::GetMaterialDiffuse': must return a value
+C:\Users\oscar\Desktop\CS500_2022\1\include\BoxObject.cpp(14): error C4716: 'BoxObject::GetCenter': must return a value
+C:\Users\oscar\Desktop\CS500_2022\1\include\BoxObject.cpp(18): error C4716: 'BoxObject::GetScale': must return a value
+C:\Users\oscar\Desktop\CS500_2022\1\include\BoxObject.cpp(22): error C4716: 'BoxObject::GetMaterialDiffuse': must return a value

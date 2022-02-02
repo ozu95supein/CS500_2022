@@ -51,6 +51,7 @@ void FrameBuffer::GetPixel(int x, int y, unsigned char & r, unsigned char & g, u
 }
 
 // Convert the custom framebuffer to SFML format
+// TODO, modify?
 void FrameBuffer::ConvertFrameBufferToSFMLImage(sf::Image & image)
 {
     int w = FrameBuffer::GetWidth();

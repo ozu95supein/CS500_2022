@@ -14,6 +14,10 @@ struct Ray
     glm::vec3 RayOrigin_p;
     glm::vec3 direction_v;
 };
+glm::vec3 CastRayToSceneRecursive(Camera camera, Ray r, )
+{
+
+}
 //returns a color in vec3 form with ranges from 0.0 to 1.0
 glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, glm::vec3 sceneAmbient)
 {
