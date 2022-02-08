@@ -31,6 +31,9 @@ int main(int argc, char ** argv)
     {
         HEIGHT = atoi(argv[4]);
     }
+    //Seed random number generator
+    std::srand(std::time(nullptr));
+
     //inti window and frame buffer with correct data
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "cs500_oscar.s_2");
     FrameBuffer::Init(WIDTH, HEIGHT);

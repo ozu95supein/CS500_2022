@@ -1,7 +1,22 @@
 #pragma once
 #include<glm/vec3.hpp>
 #include "ObjectCommonHeader.h"
+#include <vector>
+#include <algorithm>    // std::max
 class Ray;
+struct HalfSpace
+{
+	HalfSpace(glm::vec3 n, glm::vec3 p)
+	{
+		normal = n;
+		point = p;
+		HalfSpaceInterval = glm::vec2(0.0f, INFINITY);	//by default it is this value
+	}
+	glm::vec3 normal;
+	glm::vec3 point;
+	glm::vec2 HalfSpaceInterval;
+};
+
 class BoxObject
 {
 public:
@@ -15,11 +30,11 @@ public:
 	float GetScale();
 	glm::vec3 GetMaterialDiffuse();
 	float IntersectWithRay(Ray r);
-
 private:
 	glm::vec3 mCornerPosition;
 	glm::vec3 mLegth;
 	glm::vec3 mWidth;
 	glm::vec3 mHeight;
 	glm::vec3 mMaterialDiffuse;
+	std::vector<HalfSpace> BoxPlanes;
 };

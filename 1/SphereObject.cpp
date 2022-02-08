@@ -53,5 +53,5 @@ float SphereObject::IntersectWithRay(Ray r)
         current_t = -(glm::dot(r.direction_v, CP)) / (glm::dot(r.direction_v, r.direction_v));
         return current_t;
     }
-	return -1.0;
+	return -1.0f;
 }

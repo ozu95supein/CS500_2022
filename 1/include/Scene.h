@@ -9,8 +9,8 @@
 struct SceneStruct
 {
 	std::vector<SphereObject> mSceneSpheres;
-	std::vector<BoxObject> mSceneSpheres;
-	std::vector<LightObject> mSceneSpheres;
+	std::vector<BoxObject> mSceneBoxes;
+	std::vector<LightObject> mSceneLights;
 
 	glm::vec3 mSceneAmbient;
 	Camera mSceneCamera;
