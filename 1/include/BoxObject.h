@@ -1,16 +1,17 @@
 #pragma once
-#include<glm/vec3.hpp>
+#include<glm/glm.hpp>
 #include "ObjectCommonHeader.h"
 #include <vector>
 #include <algorithm>    // std::max
-class Ray;
+struct Ray;
 struct HalfSpace
 {
 	HalfSpace(glm::vec3 n, glm::vec3 p)
 	{
 		normal = n;
 		point = p;
-		HalfSpaceInterval = glm::vec2(0.0f, INFINITY);	//by default it is this value
+		float max_f = (float)INFINITY;
+		HalfSpaceInterval = glm::vec2(0.0f, (float)max_f);	//by default it is this value
 	}
 	glm::vec3 normal;
 	glm::vec3 point;
@@ -30,6 +31,7 @@ public:
 	float GetScale();
 	glm::vec3 GetMaterialDiffuse();
 	float IntersectWithRay(Ray r);
+	glm::vec3 GetNormalOfIntersection(glm::vec3 pi, float epsilon_range);
 private:
 	glm::vec3 mCornerPosition;
 	glm::vec3 mLegth;

@@ -10,6 +10,7 @@
 #include <math.h>
 const float PI = 3.141592f;
 const float MY_EPSILON = 0.001f;
+
 enum RAY_HIT_TYPE
 {
     E_NO_HIT = 0,
@@ -29,7 +30,4 @@ struct Ray
     glm::vec3 direction_v;
 };
 
-//returns a color in vec3 form with ranges from 0.0 to 1.0
-glm::vec3 CastRayToScene(Camera camera, Ray r, std::vector<SphereObject> scene, glm::vec3 sceneAmbient);
-
-glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces);
+glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces, bool default_ambience);

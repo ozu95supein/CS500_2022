@@ -1,6 +1,6 @@
 #pragma once
 #include<glm/vec3.hpp>
-class Ray;
+struct Ray;
 class LightObject
 {
 public:

@@ -2,7 +2,7 @@
 #include<glm/vec3.hpp>
 #include "ObjectCommonHeader.h"
 
-class Ray;
+struct Ray;
 class SphereObject
 {
 public:

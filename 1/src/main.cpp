@@ -7,14 +7,17 @@
 #include "SceneParser.h"
 #include "RayCasting.h"
 
+
 int main(int argc, char ** argv)
 {
+    bool debug_ambience = true;     //if true, this will use the default ambience specified in raycasting.h instead of the ambience in the file
     //default values for commandline argument data
     int WIDTH = 500;
     int HEIGHT = 500;
     std::string inputFile = "A1.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
+    int bounces = 5;
     //receive commandline arguments 
     if (argc > 1)
         inputFile = argv[1];
@@ -31,8 +34,12 @@ int main(int argc, char ** argv)
     {
         HEIGHT = atoi(argv[4]);
     }
+    if (argc > 5)
+    {
+        bounces = atoi(argv[5]);
+    }
     //Seed random number generator
-    std::srand(std::time(nullptr));
+    //std::srand(std::time(nullptr));
 
     //inti window and frame buffer with correct data
     sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "cs500_oscar.s_2");
@@ -62,6 +69,8 @@ int main(int argc, char ** argv)
     U = glm::cross(R, View);
     U = glm::normalize(U);
     
+    //boolean to render the image, this will only do this once per button press
+    bool Need_To_RenderFullImage = true;
     // Init the clock
     sf::Clock clock;
     while (window.isOpen())
@@ -93,36 +102,48 @@ int main(int argc, char ** argv)
         Ray ray(mCurrentScene.mSceneCamera.GetCPosition(), glm::vec3(0.0f, 0.0f, 0.0f));
         //glm::vec3 result_color = CastRayToScene(DebugCamera, r, mSceneSpheres);
         glm::vec3 result_color;
-        
-        for (unsigned x = 0; x < WIDTH; x++) 
+        if (Need_To_RenderFullImage)
         {
-            NDC_x = ((x + 0.5f) - w_o_2) / w_o_2;
-            for (unsigned y = 0; y < HEIGHT; y++)
+            for (unsigned x = 0; x < WIDTH; x++)
             {
-                NDC_y = (-((y + 0.5f) - h_o_2)) / h_o_2;
-                //using NDC coord to create pixelWord coords
-                PixelWorld = mCurrentScene.mSceneCamera.GetCPosition() + (mCurrentScene.mSceneCamera.GetFocalLength() * View) + (NDC_x * r_o_2) + (NDC_y * u_o_2a);
-                glm::vec3 RayDir = PixelWorld - ray.RayOrigin_p;  //get ray direction from origin and Pixelworld
-                RayDir = glm::normalize(RayDir);
-                ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
-                result_color = CastRayToScene(mCurrentScene.mSceneCamera, ray, mCurrentScene.mSceneSpheres, mCurrentScene.mSceneAmbient);  //cast the ray using camera, the ray, and the vector of sphere objects
-                //convert to 255 format and set the pixel in the frame buffer
-                glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
-                FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
+                NDC_x = ((x + 0.5f) - w_o_2) / w_o_2;
+                for (unsigned y = 0; y < HEIGHT; y++)
+                {
+                    NDC_y = (-((y + 0.5f) - h_o_2)) / h_o_2;
+                    //using NDC coord to create pixelWord coords
+                    PixelWorld = mCurrentScene.mSceneCamera.GetCPosition() + (mCurrentScene.mSceneCamera.GetFocalLength() * View) + (NDC_x * r_o_2) + (NDC_y * u_o_2a);
+                    glm::vec3 RayDir = PixelWorld - ray.RayOrigin_p;  //get ray direction from origin and Pixelworld
+                    RayDir = glm::normalize(RayDir);
+                    ray.direction_v = RayDir;   //update the ray direction according to PixelWorld Coords
+
+                    //glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces)
+                    result_color = CastRayRecursiveBounce(mCurrentScene, ray, bounces, debug_ambience);
+                    //convert to 255 format and set the pixel in the frame buffer
+                    glm::vec3 result_color_255(result_color.x * 255.0f, result_color.y * 255.0f, result_color.z * 255.0f);
+                    FrameBuffer::SetPixel(x, y, result_color_255.x, result_color_255.y, result_color_255.z);
+                }
+                ////////////////////// TAKE CONTENT IN FRAME BUFFER AND SHOW TO SCREEN ////////////////////////
+                // Show image on screen
+                FrameBuffer::ConvertFrameBufferToSFMLImage(image);
+
+                texture.update(image);
+                sprite.setTexture(texture);
+                window.draw(sprite);
+                window.display();
+                //////////////////////////////////////////////
             }
+            Need_To_RenderFullImage = false;
         }
+        
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::F1))
         {
             takeScreenshot = true;
         }
-        // Show image on screen
-        FrameBuffer::ConvertFrameBufferToSFMLImage(image);
-
-        texture.update(image);
-        sprite.setTexture(texture);
-        window.draw(sprite);
-        window.display();
-		
+        //TODO ADD A RESTART RENDER BUTTON
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::F5))
+        {
+            Need_To_RenderFullImage = true;
+        }
         if (takeScreenshot)
         {
             image.saveToFile(screenshotName);

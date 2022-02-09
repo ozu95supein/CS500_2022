@@ -10,7 +10,7 @@ BoxObject::BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::ve
 	//generate Halfspaces
 	//FRONT
 	glm::vec3 c1 = c;
-	glm::vec3 n1 = glm::cross(l, h);
+	glm::vec3 n1 = glm::normalize(glm::cross(l, h));
 	BoxPlanes.push_back(HalfSpace(n1, c1));
 	//BACK
 	glm::vec3 c2 = c + w;
@@ -19,7 +19,7 @@ BoxObject::BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::ve
 
 	//LEFT
 	glm::vec3 c3 = c;
-	glm::vec3 n3 = glm::cross(h, w);
+	glm::vec3 n3 = glm::normalize(glm::cross(h, w));
 	BoxPlanes.push_back(HalfSpace(n3, c3));
 
 	//RIGHT
@@ -29,7 +29,7 @@ BoxObject::BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::ve
 
 	//BOTTOM
 	glm::vec3 c5 = c;
-	glm::vec3 n5 = glm::cross(w, l);
+	glm::vec3 n5 = glm::normalize(glm::cross(w, l));
 	BoxPlanes.push_back(HalfSpace(n5, c5));
 
 	//TOP
@@ -71,7 +71,7 @@ glm::vec3 BoxObject::GetMaterialDiffuse()
 {
 	return glm::vec3(0.0, 0.0, 0.0);
 }
-// No intersection interval is [-1, -1]
+// No intersection interval is [0, -1]
 void GetRayPlaneIntersectionInterval(Ray r, HalfSpace plane)
 {
 	glm::vec2 Interval(0.0f, INFINITY);
@@ -96,12 +96,12 @@ void GetRayPlaneIntersectionInterval(Ray r, HalfSpace plane)
 		}
 		else
 		{
-			Interval = glm::vec2(-1, -1);
+			Interval = glm::vec2(0, -1);
 		}
 	}
 	else
 	{
-		Interval = glm::vec2(-1, -1);
+		Interval = glm::vec2(0, -1);
 	}
 	//set the interval of the plane to that of the interval
 	plane.HalfSpaceInterval = Interval;
@@ -118,14 +118,14 @@ float BoxObject::IntersectWithRay(Ray r)
 	for (int i = 0; i < BoxPlanes.size(); i++)
 	{
 		//skip over invalid intervals
-		if (BoxPlanes[i].HalfSpaceInterval == glm::vec2(-1, -1))
+		if (BoxPlanes[i].HalfSpaceInterval == glm::vec2(0, -1))
 		{
 			continue;
 		}
 		//max of the min
 		float l = std::max(CurrentInterval.x, BoxPlanes[i].HalfSpaceInterval.x);
 		//min of the max
-		float r = std::max(CurrentInterval.y, BoxPlanes[i].HalfSpaceInterval.y);
+		float r = std::min(CurrentInterval.y, BoxPlanes[i].HalfSpaceInterval.y);
 		CurrentInterval.x = l;
 		CurrentInterval.y = r;
 	}
@@ -138,4 +138,21 @@ float BoxObject::IntersectWithRay(Ray r)
 	}
 	//otherise, we return the x value
 	return CurrentInterval.x;
+}
+glm::vec3 BoxObject::GetNormalOfIntersection(glm::vec3 pi, float epsilon_range)
+{
+	float current_d;
+	//iterate through the halspaces
+	for (int i = 0; i < BoxPlanes.size(); i++)
+	{
+		glm::vec3 vector_sub = pi - BoxPlanes[i].point;
+		current_d = glm::dot(BoxPlanes[i].normal, vector_sub);
+		//check if distance is within the range
+		if (abs(current_d) <= epsilon_range)
+		{
+			return BoxPlanes[i].normal;
+		}
+	}
+	//default should return 0 normal, but this is wrong, we shoulndt get here
+	return BoxPlanes[0].normal;
 }
