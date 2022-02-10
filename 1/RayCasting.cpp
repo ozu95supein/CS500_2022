@@ -22,6 +22,7 @@ glm::vec3 myRand_vec3()
     float x = sin(phi) * cos(theta);
     float y = cos(phi) * sin(theta);
     float z = cos(phi);
+
     glm::vec3 v = glm::vec3(x, y, z);
     return v;
 }
@@ -67,7 +68,7 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
     for (std::vector<BoxObject>::iterator it = scene.mSceneBoxes.begin(); it != scene.mSceneBoxes.end(); ++it)
     {
         current_box_t = it->IntersectWithRay(r);
-        if (current_box_t < 0)
+        if (current_box_t <= 0)
         {
             continue;
         }
@@ -157,6 +158,10 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             }
             else if (current_sphere_t < current_box_t)
             {
+                if (current_box_t == INFINITY)
+                {
+                    e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
+                }
                 e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
             }
             else
@@ -238,12 +243,18 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
                 glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_sphere_t_sofar);
                 //calculate the normal of the sphere
                 //  get center of sphere and pi, make a vector and normalize
+
                 glm::vec3 sphere_normal = pi - nearest_sphere_obj_it->GetCenter();
+                glm::vec3 dirtolight = glm::vec3(0.0, 2.0, 0.0) - pi;
+                
                 sphere_normal = glm::normalize(sphere_normal);
                 //make offseted point
                 glm::vec3 p_offset = pi + MY_EPSILON * sphere_normal;
-                glm::vec3 dir = myRand_vec3();
+                glm::vec3 rand_dir = myRand_vec3(); 
+                glm::vec3 dir = rand_dir + sphere_normal;
+                dir = glm::normalize(dir);
                 Ray nr(p_offset, dir);
+
                 int b = RemainingBounces - 1;
                 return nearest_sphere_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
             }

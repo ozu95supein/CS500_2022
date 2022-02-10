@@ -46,6 +46,11 @@ float SphereObject::IntersectWithRay(Ray r)
     {
         //2 intercetions, take the smaller one (the one witht he subtraction)
         current_t = ((-2.0f * (glm::dot(r.direction_v, CP))) - glm::sqrt(discriminant)) / (2 * (glm::dot(r.direction_v, r.direction_v)));  
+        //TODO more cases to account for
+        if (current_t < 0.0f)
+        {
+            current_t = ((-2.0f * (glm::dot(r.direction_v, CP))) + glm::sqrt(discriminant)) / (2 * (glm::dot(r.direction_v, r.direction_v)));
+        }
         return current_t;
     }
     else if (discriminant == 0)
