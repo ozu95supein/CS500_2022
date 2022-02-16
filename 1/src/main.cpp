@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
         bounces = atoi(argv[5]);
     }
     //DEGUG SCENE
-    inputFile = "A_DEBUG.txt";
+    //inputFile = "A_DEBUG.txt";
 
     //Seed random number generator
     //std::srand(std::time(nullptr));

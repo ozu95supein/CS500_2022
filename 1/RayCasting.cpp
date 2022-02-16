@@ -30,16 +30,16 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
 {
     //make floats for t values for current t, the value we calculate, and values for smallest 
     //  t sofar, which are the smallest, non-negative, t values we keep track of
+    float smallest_t = INFINITY;
     float current_sphere_t = INFINITY;
     float current_box_t = INFINITY;
     float current_light_t = INFINITY;
-    float smallest_sphere_t_sofar = INFINITY;
-    float smallest_box_t_sofar = INFINITY;
-    float smallest_light_t_sofar = INFINITY;
 
     std::vector<SphereObject>::iterator nearest_sphere_obj_it;
     std::vector<BoxObject>::iterator nearest_box_obj_it;
     std::vector<LightObject>::iterator nearest_light_obj_it;
+
+    RAY_HIT_TYPE e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
 
     // integer to track nearest object
     // (-1 == default option, not set)
@@ -57,13 +57,14 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             continue;
         }
         //check if t is smaller
-        if (current_sphere_t < smallest_sphere_t_sofar)
+        if (current_sphere_t < smallest_t)
         {
-            smallest_sphere_t_sofar = current_sphere_t;
+            smallest_t = current_sphere_t;
+            e_hit_type = RAY_HIT_TYPE::E_SPHERE_HIT;
             nearest_sphere_obj_it = it;
         }
     }
-
+    
     //iterate of the box in the scene, get current t, compare with smallest t, keep trak of nearest object and there t
     for (std::vector<BoxObject>::iterator it = scene.mSceneBoxes.begin(); it != scene.mSceneBoxes.end(); ++it)
     {
@@ -73,9 +74,10 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             continue;
         }
         //check if t is smaller
-        if (current_box_t < smallest_box_t_sofar)
+        if (current_box_t < smallest_t)
         {
-            smallest_box_t_sofar = current_box_t;
+            smallest_t = current_box_t;
+            e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
             nearest_box_obj_it = it;
         }
     }
@@ -89,17 +91,20 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             continue;
         }
         //check if t is smaller
-        if (current_light_t < smallest_light_t_sofar)
+        if (current_light_t < smallest_t)
         {
-            smallest_light_t_sofar = current_light_t;
+            smallest_t = current_light_t;
+            e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
             nearest_light_obj_it = it;
         }
     }
 
-    RAY_HIT_TYPE e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
+
+
+
 
     //Sanity check for checking if absolutely nothing intersected with ray
-    if ((smallest_sphere_t_sofar < 0.0f) && (smallest_box_t_sofar < 0.0f) && (smallest_light_t_sofar < 0.0f))
+    if (smallest_t < 0.0f)
     {
         //NO INTERSECTION, return ambient lighting, which is usually set to 0,0,0
         e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
@@ -108,105 +113,6 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             return glm::vec3(0.2, 0.2, 0.2);
         }
         return scene.mSceneAmbient;
-    }
-    //need to check whic one is the closest object, need to discard negative t values
-    //first check Spheres and Boxes
-    //check if both are negative, if yes, then check light t directly
-    if ((current_sphere_t <= 0.0f) && (current_box_t <= 0.0f))
-    {
-        if (current_light_t < 0.0f)
-        {
-            e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
-            if (use_default_amb)
-            {
-                return glm::vec3(0.2, 0.2, 0.2);
-            }
-            return scene.mSceneAmbient;
-        }
-        else //we hit a light
-        {
-            e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
-        }
-    }
-    //check if both are positive
-    else if ((current_sphere_t > 0.0f) && (current_box_t > 0.0f))
-    {
-        if (current_sphere_t < current_box_t)
-        {
-            //sphere is closer, now we check with light
-            // if light is negative, we dont need to check
-            if (current_light_t <= 0.0f)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_SPHERE_HIT;
-            }
-            else if (current_sphere_t < current_box_t)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_SPHERE_HIT;
-            }
-            else
-            {
-                e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
-            }
-        }
-        else
-        {
-            //box is closer, now we check with light
-            // if light is negative, we dont need to check
-            if (current_light_t <= 0.0f)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
-            }
-            else if (current_sphere_t < current_box_t)
-            {
-                if (current_box_t == INFINITY)
-                {
-                    e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
-                }
-                e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
-            }
-            else
-            {
-                e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
-            }
-        }
-    }
-    //one of them is negative, we take the positive one
-    else
-    {
-        if (current_sphere_t > 0)
-        {
-            //sphere is closer, now we check with light
-            // if light is negative, we dont need to check
-            if (current_light_t <= 0.0f)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_SPHERE_HIT;
-            }
-            else if (current_sphere_t < current_box_t)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_SPHERE_HIT;
-            }
-            else
-            {
-                e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
-            }
-        }
-        else
-        {
-            //box is closer, now we check with light
-            // if light is negative, we dont need to check
-            if (current_light_t <= 0.0f)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
-            }
-            else if (current_sphere_t < current_box_t)
-            {
-                e_hit_type = RAY_HIT_TYPE::E_BOX_HIT;
-            }
-            else
-            {
-                e_hit_type = RAY_HIT_TYPE::E_LIGHT_HIT;
-            }
-        }
     }
 
     //if remaining bounces are == 0
@@ -240,7 +146,7 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
             {
                 //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
                 //get point of intersection, NOTE WE NEED TO OFFSET THIS
-                glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_sphere_t_sofar);
+                glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
                 //calculate the normal of the sphere
                 //  get center of sphere and pi, make a vector and normalize
 
@@ -256,20 +162,22 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
                 Ray nr(p_offset, dir);
 
                 int b = RemainingBounces - 1;
-                return nearest_sphere_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                // return nearest_sphere_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                return nearest_sphere_obj_it->GetMaterialDiffuse();
             }
             else if (e_hit_type == RAY_HIT_TYPE::E_BOX_HIT)
             {
-                //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
-                //get point of intersection, NOTE WE NEED TO OFFSET THIS
-                glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_box_t_sofar);
-                glm::vec3 box_normal =  nearest_box_obj_it->GetNormalOfIntersection(pi, MY_EPSILON);
-                //make offseted point
-                glm::vec3 p_offset = pi + MY_EPSILON * box_normal;
-                glm::vec3 dir = myRand_vec3();
-                Ray nr(p_offset, dir);
-                int b = RemainingBounces - 1;
-                return nearest_box_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                // //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
+                // //get point of intersection, NOTE WE NEED TO OFFSET THIS
+                // glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
+                // glm::vec3 box_normal =  nearest_box_obj_it->GetNormalOfIntersection(pi, MY_EPSILON);
+                // //make offseted point
+                // glm::vec3 p_offset = pi + MY_EPSILON * box_normal;
+                // glm::vec3 dir = myRand_vec3();
+                // Ray nr(p_offset, dir);
+                // int b = RemainingBounces - 1;
+                // return nearest_box_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                return nearest_box_obj_it->GetMaterialDiffuse();
             }
         }
         

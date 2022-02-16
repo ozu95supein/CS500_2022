@@ -1,25 +1,8 @@
-﻿  main.cpp
-C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(30,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(110,36): warning C4018: '<': signed/unsigned mismatch
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(113,40): warning C4018: '<': signed/unsigned mismatch
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(126,105): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(126,85): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(126,65): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
-          with
-          [
-              T=float
-          ]
+﻿  RayCasting.cpp
+C:\Users\oscar\Desktop\CS500_2022\1\RayCasting.cpp(8,13): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
   Generating code
-  1 of 703 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  25 of 700 functions ( 3.6%) were compiled, the rest were copied from previous compilation.
+    11 functions were new in current compilation
+    6 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   cs500_template.vcxproj -> C:\Users\oscar\Desktop\CS500_2022\1\bin\Release\cs500_template.exe
