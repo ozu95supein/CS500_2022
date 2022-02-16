@@ -2,3 +2,4 @@
 .vs
 *.dll
 obj
+.suo
