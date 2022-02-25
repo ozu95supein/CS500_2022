@@ -1,7 +1,7 @@
 #pragma once
 #include<glm/vec3.hpp>
 #include "ObjectCommonHeader.h"
-
+#include "Material.h"
 struct Ray;
 class SphereObject
 {
@@ -16,4 +16,5 @@ private:
 	glm::vec3 mPosition;
 	float mScale;
 	glm::vec3 mMaterialDiffuse;
+	Material mMaterial;
 };

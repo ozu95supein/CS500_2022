@@ -10,6 +10,7 @@
 #include "Scene.h"
 #include <string>
 #include <vector>
+#include "Material.h"
 using namespace std;
 
 //these codes are dependant on how the input is formated
@@ -19,6 +20,7 @@ string PARSECODE_BOX = "BOX";
 string PARSECODE_AMBIENT = "AMBIENT";
 string PARSECODE_CAMERA = "CAMERA";
 string PARSECODE_LIGHT = "LIGHT";
+string PARSECODE_METAL = "METAL";
 
 glm::vec3 ExtractVector(string input)
 {
@@ -67,6 +69,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 	glm::vec3 inputBoxLength;
 	glm::vec3 inputBoxWidth;
 	glm::vec3 inputBoxHeight;
+	Material inputMaterial();
 	float inputFloat;
 	//these will be the vectors filled with the raycasting objects
 	vector<SphereObject> inputSpheres;
@@ -75,6 +78,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 
 	glm::vec3 inputAmbient;
 	glm::vec3 inputDiffuse;
+	glm::vec3 inputMetallic;
 	//once I have all the lines in an array of strings I parse them one by one
 	//iterate over the array of strings and subdivide into words
 	vector<string> words;
@@ -198,6 +202,31 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 				getline(sstream, vec3_word, ' ');
 				//pass the word into our vec3 extractor
 				inputDiffuse = ExtractVector(vec3_word);	//sphere diffuse
+			}
+		}
+		else if (firstword == PARSECODE_METAL)	//metalic material
+		{
+			//if we get this, we have been doing stuff with SPHERE or BOX or other
+			if (currentlyMakingSphere)
+			{
+				//get the next word
+				getline(sstream, vec3_word, ' ');
+				//pass the word into our vec3 extractor
+				inputMetallic = ExtractVector(vec3_word);	//sphere metallic
+				//now we get the next word to get the scale
+				getline(sstream, vec3_word, ' ');
+				inputFloat = stof(vec3_word);
+
+			}
+			if (currentlyMakingBox)
+			{
+				//get the next word
+				getline(sstream, vec3_word, ' ');
+				//pass the word into our vec3 extractor
+				inputMetallic = ExtractVector(vec3_word);	//box metallic
+				//now we get the next word to get the scale
+				getline(sstream, vec3_word, ' ');
+				inputFloat = stof(vec3_word);
 			}
 		}
 		else if (firstword == "")

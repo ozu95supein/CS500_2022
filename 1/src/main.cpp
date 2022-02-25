@@ -14,7 +14,7 @@ int main(int argc, char ** argv)
     //default values for commandline argument data
     int WIDTH = 500;
     int HEIGHT = 500;
-    std::string inputFile = "A1.txt";
+    std::string inputFile = "A3.txt";
     std::string screenshotName = "screenshot.png";
     bool        takeScreenshot = false;
     int bounces = 5;
