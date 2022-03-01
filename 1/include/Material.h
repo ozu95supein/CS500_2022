@@ -7,24 +7,28 @@ enum class MaterialType
 };
 struct Material
 {
-	glm::vec3 mDiffColor;
+	glm::vec3 mColor;
 	float mReflecttionRoughness;
 	MaterialType mMatType;
 	Material()
 	{
-		mDiffColor = glm::vec3(0.0f);
+		mColor = glm::vec3(0.0f);
 		mReflecttionRoughness = 0.0f;
 		mMatType = MaterialType::E_DIFFUSE_MAT;
 	}
-	Material(glm::vec3 diff, float rough, MaterialType type)
+	Material(glm::vec3 color, float rough, MaterialType type)
 	{
-		mDiffColor = diff;
+		mColor = color;
 		mReflecttionRoughness = rough;
 		mMatType = type;
 	}
+	glm::vec3 GetColor()
+	{
+		return mColor;
+	}
 	glm::vec3 GetDiffuse()
 	{
-		return mDiffColor;
+		return mColor;
 	}
 	float GetRoughness()
 	{

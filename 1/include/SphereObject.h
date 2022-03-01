@@ -12,6 +12,8 @@ public:
 	float GetScale();
 	glm::vec3 GetMaterialDiffuse();
 	float IntersectWithRay(Ray r);
+	void SetMaterial(Material m);
+	Material GetMaterial();
 private:
 	glm::vec3 mPosition;
 	float mScale;

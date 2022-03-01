@@ -22,6 +22,14 @@ glm::vec3 SphereObject::GetMaterialDiffuse()
 {
 	return mMaterialDiffuse;
 }
+void SphereObject::SetMaterial(Material m)
+{
+    mMaterial = m;
+}
+Material SphereObject::GetMaterial()
+{
+    return mMaterial;
+}
 //this will not check for negatives, this will return t or -1, 
 float SphereObject::IntersectWithRay(Ray r)
 {

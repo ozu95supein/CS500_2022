@@ -88,6 +88,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 	bool currentlyMakingSphere = false;	//this starts as false
 	bool currentlyMakingLight = false;	//same as above
 	bool currentlyMakingBox = false;	//same as above
+	MaterialType currentMaterialBeingMade = MaterialType::E_DIFFUSE_MAT;
 	for (auto it = lines.begin(); it != lines.end(); ++it)
 	{
 		//sanity check to skip comments
@@ -203,6 +204,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 				//pass the word into our vec3 extractor
 				inputDiffuse = ExtractVector(vec3_word);	//sphere diffuse
 			}
+			currentMaterialBeingMade = MaterialType::E_DIFFUSE_MAT;
 		}
 		else if (firstword == PARSECODE_METAL)	//metalic material
 		{
@@ -228,15 +230,35 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 				getline(sstream, vec3_word, ' ');
 				inputFloat = stof(vec3_word);
 			}
+			currentMaterialBeingMade = MaterialType::E_METALLIC_MAT;
 		}
 		else if (firstword == "")
 		{
 			if (currentlyMakingSphere == true)
 			{
-				//create a sphere using the current values inside and add to the vector
-				auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
-				inputSpheres.push_back(sph);
-				currentlyMakingSphere = false; //reset this to false;
+				if (currentMaterialBeingMade == MaterialType::E_DIFFUSE_MAT)
+				{
+					//create a sphere using the current values inside and add to the vector
+					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
+					inputMaterial = Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT);
+					sph.SetMaterial();
+					inputSpheres.push_back(sph);
+					currentlyMakingSphere = false; //reset this to false;
+				}
+				else if (currentMaterialBeingMade == MaterialType::E_METALLIC_MAT)
+				{
+					//create a sphere using the current values inside and add to the vector
+					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
+					inputSpheres.push_back(sph);
+					currentlyMakingSphere = false; //reset this to false;
+				}
+				else
+				{
+					//create a sphere using the current values inside and add to the vector
+					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
+					inputSpheres.push_back(sph);
+					currentlyMakingSphere = false; //reset this to false;
+				}		
 			}
 			if (currentlyMakingBox)
 			{

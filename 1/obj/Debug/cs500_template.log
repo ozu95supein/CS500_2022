@@ -1,5 +1,11 @@
-﻿  main.cpp
-C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(30,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+﻿  RayCasting.cpp
+C:\Users\oscar\Desktop\CS500_2022\1\RayCasting.cpp(8,13): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  SphereObject.cpp
+  BoxObject.cpp
+  LightObject.cpp
+  main.cpp
+C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(32,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\oscar\Desktop\CS500_2022\1\include\SceneParser.h(72,11): warning C4930: 'Material inputMaterial(void)': prototyped function not called (was a variable definition intended?)
 C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(110,36): warning C4018: '<': signed/unsigned mismatch
 C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(113,40): warning C4018: '<': signed/unsigned mismatch
 C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(126,105): warning C4244: 'argument': conversion from 'T' to 'unsigned char', possible loss of data
@@ -17,4 +23,5 @@ C:\Users\oscar\Desktop\CS500_2022\1\src\main.cpp(126,65): warning C4244: 'argume
           [
               T=float
           ]
+  Generating Code...
   cs500_template.vcxproj -> C:\Users\oscar\Desktop\CS500_2022\1\bin\Debug\cs500_template.exe
