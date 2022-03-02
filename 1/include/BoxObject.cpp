@@ -156,3 +156,11 @@ glm::vec3 BoxObject::GetNormalOfIntersection(glm::vec3 pi, float epsilon_range)
 	//default should return 0 normal, but this is wrong, we shoulndt get here
 	return BoxPlanes[0].normal;
 }
+void BoxObject::SetMaterial(Material m)
+{
+	mMaterial = m;
+}
+Material BoxObject::GetMaterial()
+{
+	return mMaterial;
+}

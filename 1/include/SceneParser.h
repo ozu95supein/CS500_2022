@@ -71,6 +71,8 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 	glm::vec3 inputBoxHeight;
 	Material inputMaterial();
 	float inputFloat;
+	float inputRadiusFloat;
+	float inputRoughness;
 	//these will be the vectors filled with the raycasting objects
 	vector<SphereObject> inputSpheres;
 	vector<BoxObject> inputBoxes;
@@ -79,11 +81,6 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 	glm::vec3 inputAmbient;
 	glm::vec3 inputDiffuse;
 	glm::vec3 inputMetallic;
-	//once I have all the lines in an array of strings I parse them one by one
-	//iterate over the array of strings and subdivide into words
-	vector<string> words;
-	string space_delimeter = " ";
-	int space_delim_pos = 0;
 	//we will use booleans to keep track of what object we are creating
 	bool currentlyMakingSphere = false;	//this starts as false
 	bool currentlyMakingLight = false;	//same as above
@@ -91,7 +88,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 	MaterialType currentMaterialBeingMade = MaterialType::E_DIFFUSE_MAT;
 	for (auto it = lines.begin(); it != lines.end(); ++it)
 	{
-		//sanity check to skip comments
+		//sanity check to skip comments with #
 		if ((*it)[0] == '#')
 		{
 			continue;
@@ -101,7 +98,9 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 		string vec3_word;
 		string x_str, y_str, z_str;
 		getline(sstream, firstword, ' ');
+		//debug firstword
 		firstword;
+		//check the first word to see what it is
 		//now that we have the first word, we need to check what it is
 		if (firstword == PARSECODE_SPHERE)
 		{
@@ -115,7 +114,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 			inputSphereCenter = ExtractVector(vec3_word);	//spherecenter
 			//now we get the next word to get the scale
 			getline(sstream, vec3_word, ' ');
-			inputFloat = stof(vec3_word);
+			inputRadiusFloat = stof(vec3_word);
 		}
 		else if (firstword == PARSECODE_LIGHT)
 		{
@@ -130,7 +129,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 			inputLightCenter = ExtractVector(vec3_word);	//lightcenter
 			//now we get the next word to get the scale of the light
 			getline(sstream, vec3_word, ' ');
-			inputFloat = stof(vec3_word);	//radius
+			inputRadiusFloat = stof(vec3_word);	//radius
 			//get the next word
 			getline(sstream, vec3_word, ' ');
 			//pass the word into our vec3 extractor
@@ -138,7 +137,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 
 			//since lights dont have info on a second line, we construct the light
 			//	then push it back
-			inputLights.push_back(LightObject(inputLightCenter, inputLightColor, inputFloat));
+			inputLights.push_back(LightObject(inputLightCenter, inputLightColor, inputRadiusFloat));
 			currentlyMakingLight = false;	//this will be true until we are done making a Light
 		}
 		else if (firstword == PARSECODE_BOX)
@@ -147,7 +146,7 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 			currentlyMakingBox = true;	//this will be true until we are done making a Box
 			currentlyMakingSphere = false;
 			currentlyMakingLight = false;
-			
+
 			// BoxCorner, length, width, height, diffuse
 			//get the next word, corner
 			getline(sstream, vec3_word, ' ');
@@ -188,48 +187,21 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 		}
 		else if (firstword == PARSECODE_DIFFUSE)
 		{
-			//if we get this, we have been doing stuff with SPHERE or BOX
-			// TODO, check which is which
-			if (currentlyMakingSphere)
-			{
-				//get the next word
-				getline(sstream, vec3_word, ' ');
-				//pass the word into our vec3 extractor
-				inputDiffuse = ExtractVector(vec3_word);	//sphere diffuse
-			}
-			if (currentlyMakingBox)
-			{
-				//get the next word
-				getline(sstream, vec3_word, ' ');
-				//pass the word into our vec3 extractor
-				inputDiffuse = ExtractVector(vec3_word);	//sphere diffuse
-			}
+			//get the next word
+			getline(sstream, vec3_word, ' ');
+			//pass the word into our vec3 extractor
+			inputDiffuse = ExtractVector(vec3_word);
 			currentMaterialBeingMade = MaterialType::E_DIFFUSE_MAT;
 		}
 		else if (firstword == PARSECODE_METAL)	//metalic material
 		{
-			//if we get this, we have been doing stuff with SPHERE or BOX or other
-			if (currentlyMakingSphere)
-			{
-				//get the next word
-				getline(sstream, vec3_word, ' ');
-				//pass the word into our vec3 extractor
-				inputMetallic = ExtractVector(vec3_word);	//sphere metallic
-				//now we get the next word to get the scale
-				getline(sstream, vec3_word, ' ');
-				inputFloat = stof(vec3_word);
-
-			}
-			if (currentlyMakingBox)
-			{
-				//get the next word
-				getline(sstream, vec3_word, ' ');
-				//pass the word into our vec3 extractor
-				inputMetallic = ExtractVector(vec3_word);	//box metallic
-				//now we get the next word to get the scale
-				getline(sstream, vec3_word, ' ');
-				inputFloat = stof(vec3_word);
-			}
+			//get the next word
+			getline(sstream, vec3_word, ' ');
+			//pass the word into our vec3 extractor
+			inputMetallic = ExtractVector(vec3_word);	//box metallic
+			//now we get the next word to get the scale
+			getline(sstream, vec3_word, ' ');
+			inputRoughness = stof(vec3_word);
 			currentMaterialBeingMade = MaterialType::E_METALLIC_MAT;
 		}
 		else if (firstword == "")
@@ -239,33 +211,54 @@ void ParseSceneFromFile(string filepath, SceneStruct& scene)
 				if (currentMaterialBeingMade == MaterialType::E_DIFFUSE_MAT)
 				{
 					//create a sphere using the current values inside and add to the vector
-					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
-					inputMaterial = Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT);
-					sph.SetMaterial();
+					SphereObject sph = SphereObject(inputSphereCenter, inputDiffuse, inputRadiusFloat);
+					sph.SetMaterial(Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT));
 					inputSpheres.push_back(sph);
 					currentlyMakingSphere = false; //reset this to false;
 				}
 				else if (currentMaterialBeingMade == MaterialType::E_METALLIC_MAT)
 				{
 					//create a sphere using the current values inside and add to the vector
-					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
+					SphereObject sph = SphereObject(inputSphereCenter, inputMetallic, inputRadiusFloat);
+					sph.SetMaterial(Material(inputMetallic, inputRoughness, MaterialType::E_METALLIC_MAT));
 					inputSpheres.push_back(sph);
 					currentlyMakingSphere = false; //reset this to false;
 				}
 				else
 				{
 					//create a sphere using the current values inside and add to the vector
-					auto sph = SphereObject(inputSphereCenter, inputDiffuse, inputFloat);
+					SphereObject sph = SphereObject(inputSphereCenter, inputDiffuse, inputRadiusFloat);
+					sph.SetMaterial(Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT));
 					inputSpheres.push_back(sph);
 					currentlyMakingSphere = false; //reset this to false;
-				}		
+				}
 			}
-			if (currentlyMakingBox)
+			else if (currentlyMakingBox == true)
 			{
-				//BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::vec3 mat_diff);
-				auto b = BoxObject(inputBoxCorner, inputBoxLength, inputBoxWidth, inputBoxHeight, inputDiffuse);
-				inputBoxes.push_back(b);
-				currentlyMakingBox = false;
+				if (currentMaterialBeingMade == MaterialType::E_DIFFUSE_MAT)
+				{
+					//BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::vec3 mat_diff);
+					BoxObject b = BoxObject(inputBoxCorner, inputBoxLength, inputBoxWidth, inputBoxHeight, inputDiffuse);
+					b.SetMaterial(Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT));
+					inputBoxes.push_back(b);
+					currentlyMakingBox = false;
+				}
+				else if (currentMaterialBeingMade == MaterialType::E_METALLIC_MAT)
+				{
+					//create a sphere using the current values inside and add to the vector
+					BoxObject b = BoxObject(inputBoxCorner, inputBoxLength, inputBoxWidth, inputBoxHeight, inputDiffuse);
+					b.SetMaterial(Material(inputDiffuse, inputRoughness, MaterialType::E_METALLIC_MAT));
+					inputBoxes.push_back(b);
+					currentlyMakingSphere = false; //reset this to false;
+				}
+				else
+				{
+					//BoxObject(glm::vec3 c, glm::vec3 l, glm::vec3 w, glm::vec3 h, glm::vec3 mat_diff);
+					BoxObject b = BoxObject(inputBoxCorner, inputBoxLength, inputBoxWidth, inputBoxHeight, inputDiffuse);
+					b.SetMaterial(Material(inputDiffuse, 0.0f, MaterialType::E_DIFFUSE_MAT));
+					inputBoxes.push_back(b);
+					currentlyMakingBox = false;
+				}
 			}
 		}
 		//unknown, continue

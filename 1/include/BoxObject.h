@@ -3,6 +3,8 @@
 #include "ObjectCommonHeader.h"
 #include <vector>
 #include <algorithm>    // std::max
+#include "Material.h"
+
 struct Ray;
 struct HalfSpace
 {
@@ -32,6 +34,8 @@ public:
 	glm::vec3 GetMaterialDiffuse();
 	float IntersectWithRay(Ray r);
 	glm::vec3 GetNormalOfIntersection(glm::vec3 pi, float epsilon_range);
+	void SetMaterial(Material m);
+	Material GetMaterial();
 private:
 	glm::vec3 mCornerPosition;
 	glm::vec3 mLegth;
@@ -39,4 +43,6 @@ private:
 	glm::vec3 mHeight;
 	glm::vec3 mMaterialDiffuse;
 	std::vector<HalfSpace> BoxPlanes;
+	Material mMaterial;
+
 };
