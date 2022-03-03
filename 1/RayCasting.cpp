@@ -26,6 +26,15 @@ glm::vec3 myRand_vec3()
     glm::vec3 v = glm::vec3(x, y, z);
     return v;
 }
+glm::vec3 RoughnessSphereVector_point(float roughness_scale, glm::vec3 sphere_center)
+{
+    //make random sphere vector
+    glm::vec3 rand_sphere_dir_vec = myRand_vec3();
+    rand_sphere_dir_vec = glm::normalize(rand_sphere_dir_vec);
+    //get the point by the actual sphere with position and scale
+    glm::vec3 sphere_surface_pos = sphere_center + (rand_sphere_dir_vec * roughness_scale);
+    return sphere_surface_pos;
+}
 glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces, bool use_default_amb)
 {
     //make floats for t values for current t, the value we calculate, and values for smallest 
@@ -40,7 +49,7 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
     std::vector<LightObject>::iterator nearest_light_obj_it;
 
     RAY_HIT_TYPE e_hit_type = RAY_HIT_TYPE::E_NO_HIT;
-
+    MaterialType e_material_type = MaterialType::E_DIFFUSE_MAT;
     // integer to track nearest object
     // (-1 == default option, not set)
     // (0 == NO INTERSECT) AKA all t values are -1
@@ -99,10 +108,6 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
         }
     }
 
-
-
-
-
     //Sanity check for checking if absolutely nothing intersected with ray
     if (smallest_t < 0.0f)
     {
@@ -114,7 +119,16 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
         }
         return scene.mSceneAmbient;
     }
-
+    //set the material type for the object depending on what hit
+    if (e_hit_type == RAY_HIT_TYPE::E_SPHERE_HIT)
+    {
+        e_material_type = nearest_sphere_obj_it->GetMaterial().mMatType;
+    }
+    else if(e_hit_type == RAY_HIT_TYPE::E_BOX_HIT)
+    {
+        e_material_type = nearest_box_obj_it->GetMaterial().mMatType;
+    }
+ 
     //if remaining bounces are == 0
     if (RemainingBounces == 0)
     {
@@ -144,40 +158,74 @@ glm::vec3 CastRayRecursiveBounce(SceneStruct scene, Ray r, int RemainingBounces,
         {
             if (e_hit_type == RAY_HIT_TYPE::E_SPHERE_HIT)
             {
-                //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
-                //get point of intersection, NOTE WE NEED TO OFFSET THIS
-                glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
-                //calculate the normal of the sphere
-                //  get center of sphere and pi, make a vector and normalize
+                if (e_material_type == MaterialType::E_DIFFUSE_MAT)
+                {
+                    //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
+                    //get point of intersection, NOTE WE NEED TO OFFSET THIS
+                    glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
+                    //calculate the normal of the sphere
+                    //  get center of sphere and pi, make a vector and normalize
 
-                glm::vec3 sphere_normal = pi - nearest_sphere_obj_it->GetCenter();
-                glm::vec3 dirtolight = glm::vec3(0.0, 2.0, 0.0) - pi;
+                    glm::vec3 sphere_normal = pi - nearest_sphere_obj_it->GetCenter();
+                    glm::vec3 dirtolight = glm::vec3(0.0, 2.0, 0.0) - pi;
+
+                    sphere_normal = glm::normalize(sphere_normal);
+                    //make offseted point
+                    glm::vec3 p_offset = pi + MY_EPSILON * sphere_normal;
+                    glm::vec3 rand_dir = myRand_vec3();
+                    glm::vec3 dir = rand_dir + sphere_normal;
+                    dir = glm::normalize(dir);
+                    Ray nr(p_offset, dir);
+
+                    int b = RemainingBounces - 1;
+                    return nearest_sphere_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                    //return nearest_sphere_obj_it->GetMaterialDiffuse();
+                }
+                else if (e_material_type == MaterialType::E_METALLIC_MAT)
+                {
+                    //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
+                    //get point of intersection, NOTE WE NEED TO OFFSET THIS
+                    glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
+                    //calculate the normal of the sphere
+                    //  get center of sphere and pi, make a vector and normalize
+                    glm::vec3 sphere_normal = pi - nearest_sphere_obj_it->GetCenter();
+                    sphere_normal = glm::normalize(sphere_normal);
+                    //make offseted point
+                    glm::vec3 p_offset = pi + MY_EPSILON * sphere_normal;
+                    glm::vec3 reflect_dir = (2.0f * glm::dot(r.direction_v, sphere_normal) * sphere_normal) - r.direction_v;
+                    reflect_dir = glm::normalize(reflect_dir);
+                    glm::vec3 roughness_sphere_center = p_offset + reflect_dir;
+                    glm::vec3 roughness_sphere_surface_pos = RoughnessSphereVector_point(nearest_sphere_obj_it->GetMaterial().GetRoughness(), roughness_sphere_center);
+                    glm::vec3 new_dir = roughness_sphere_surface_pos - p_offset;
+                    new_dir = glm::normalize(new_dir);
+
+                    Ray nr(p_offset, new_dir);
+                    int b = RemainingBounces - 1;
+                    return nearest_sphere_obj_it->GetMaterial().mColor * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                }
                 
-                sphere_normal = glm::normalize(sphere_normal);
-                //make offseted point
-                glm::vec3 p_offset = pi + MY_EPSILON * sphere_normal;
-                glm::vec3 rand_dir = myRand_vec3(); 
-                glm::vec3 dir = rand_dir + sphere_normal;
-                dir = glm::normalize(dir);
-                Ray nr(p_offset, dir);
-
-                int b = RemainingBounces - 1;
-                // return nearest_sphere_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
-                return nearest_sphere_obj_it->GetMaterialDiffuse();
             }
             else if (e_hit_type == RAY_HIT_TYPE::E_BOX_HIT)
             {
-                // //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
-                // //get point of intersection, NOTE WE NEED TO OFFSET THIS
-                // glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
-                // glm::vec3 box_normal =  nearest_box_obj_it->GetNormalOfIntersection(pi, MY_EPSILON);
-                // //make offseted point
-                // glm::vec3 p_offset = pi + MY_EPSILON * box_normal;
-                // glm::vec3 dir = myRand_vec3();
-                // Ray nr(p_offset, dir);
-                // int b = RemainingBounces - 1;
-                // return nearest_box_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
-                return nearest_box_obj_it->GetMaterialDiffuse();
+                if (e_material_type == MaterialType::E_DIFFUSE_MAT)
+                {
+                    // //generate a new random ray, nr, with the point of intersection, the normal, and call this function again recursively like this:
+                    // //get point of intersection, NOTE WE NEED TO OFFSET THIS
+                    // glm::vec3 pi = r.RayOrigin_p + (r.direction_v * smallest_t);
+                    // glm::vec3 box_normal =  nearest_box_obj_it->GetNormalOfIntersection(pi, MY_EPSILON);
+                    // //make offseted point
+                    // glm::vec3 p_offset = pi + MY_EPSILON * box_normal;
+                    // glm::vec3 dir = myRand_vec3();
+                    // Ray nr(p_offset, dir);
+                    // int b = RemainingBounces - 1;
+                    // return nearest_box_obj_it->GetMaterialDiffuse() * CastRayRecursiveBounce(scene, nr, b, use_default_amb);
+                    return nearest_box_obj_it->GetMaterialDiffuse();
+                }
+                else if (e_material_type == MaterialType::E_METALLIC_MAT)
+                {
+
+                }
+                
             }
         }
         
